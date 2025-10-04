@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monad Community Quiz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f8fa;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .question {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .correct {
+            background: #2ecc71 !important;
+        }
+        .incorrect {
+            background: #e74c3c !important;
+        }
+        .result {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 30px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .score {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 20px;
+        }
+        .restart {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 30px;
+            background: #9b59b6;
+        }
+        .restart:hover {
+            background: #8e44ad;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Monad Community Quiz</h1>
+        <div id="quiz-container"></div>
+        <div class="score">Score: <span id="score">0</span>/5</div>
+        <div id="result" class="result"></div>
+        <button id="restart" class="restart">Restart Quiz</button>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "What is the block time for Monad blocks?",
+                options: ["A) 100 ms", "B) 400 ms", "C) 1 second", "D) 12 seconds"],
+                answer: "B"
+            },
+            {
+                question: "What is the finality time for a block in Monad (i.e., when block N finalizes)?",
+                options: ["A) 400 ms", "B) 800 ms", "C) 1.2 seconds", "D) 5.5 hours"],
+                answer: "B"
+            },
+            {
+                question: "The Monad execution client is written in which programming language?",
+                options: ["A) Rust", "B) Go", "C) C++", "D) Python"],
+                answer: "C"
+            },
+            {
+                question: "What is the gas limit per block in Monad's testnet, as mentioned in 'How Monad Works'?",
+                options: ["A) 50 million gas", "B) 100 million gas", "C) 150 million gas", "D) 300 million gas"],
+                answer: "C"
+            },
+            {
+                question: "What key announcement is made about the Monad client built by Category Labs?",
+                options: ["A) It is now fully proprietary", "B) It is now fully open source", "C) It is available only for enterprise users", "D) It is migrating to a new blockchain"],
+                answer: "B"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        const quizContainer = document.getElementById('quiz-container');
+        const scoreElement = document.getElementById('score');
+        const resultElement = document.getElementById('result');
+        const restartButton = document.getElementById('restart');
+
+        function showQuestion() {
+            const question = quizData[currentQuestion];
+            const questionElement = document.createElement('div');
+            questionElement.classList.add('question');
+            questionElement.innerHTML = `
+                <h3>${currentQuestion + 1}. ${question.question}</h3>
+                <div class="options">
+                    ${question.options.map(option => 
+                        `<button data-option="${option.charAt(0)}">${option}</button>`
+                    ).join('')}
+                </div>
+            `;
+            quizContainer.innerHTML = '';
+            quizContainer.appendChild(questionElement);
+
+            document.querySelectorAll('.options button').forEach(button => {
+                button.addEventListener('click', () => checkAnswer(button));
+            });
+        }
+
+        function checkAnswer(selectedButton) {
+            const selectedOption = selectedButton.getAttribute('data-option');
+            const correctAnswer = quizData[currentQuestion].answer;
+            const allButtons = document.querySelectorAll('.options button');
+
+            allButtons.forEach(button => {
+                button.disabled = true;
+                const optionLetter = button.getAttribute('data-option');
+                if (optionLetter === correctAnswer) {
+                    button.classList.add('correct');
+                } else if (optionLetter === selectedOption && selectedOption !== correctAnswer) {
+                    button.classList.add('incorrect');
+                }
+            });
+
+            if (selectedOption === correctAnswer) {
+                score++;
+                scoreElement.textContent = score;
+            }
+
+            currentQuestion++;
+
+            if (currentQuestion < quizData.length) {
+                setTimeout(showQuestion, 1500);
+            } else {
+                setTimeout(showResult, 1500);
+            }
+        }
+
+        function showResult() {
+            quizContainer.innerHTML = '';
+            resultElement.textContent = `Quiz Completed! Final Score: ${score}/${quizData.length}`;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            scoreElement.textContent = score;
+            resultElement.textContent = '';
+            showQuestion();
+        }
+
+        restartButton.addEventListener('click', restartQuiz);
+
+        // Initialize quiz
+        showQuestion();
+    </script>
+</body>
+</html>
